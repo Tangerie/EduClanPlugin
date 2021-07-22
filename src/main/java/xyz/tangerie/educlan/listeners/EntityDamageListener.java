@@ -21,12 +21,26 @@ public class EntityDamageListener implements Listener {
             if(e.getEntity().getType() == EntityType.PLAYER) {
                 if(!clan.isPVPAllowed())  {
                     e.setCancelled(true);
-                    ((Player)e.getDamager()).sendRawMessage(ChatColor.RED + "PVP not allowed in clan's land");
+                    ((Player)e.getDamager()).sendActionBar(ChatColor.RED + "PVP not allowed in clan's land");
                 }
             } else {
                 if(!clan.isPVEAllowed())  {
                     e.setCancelled(true);
-                    ((Player)e.getDamager()).sendRawMessage(ChatColor.RED + "PVE not allowed in clan's land");
+                    ((Player)e.getDamager()).sendActionBar(ChatColor.RED + "PVE not allowed in clan's land");
+                }
+            }
+        } else if(e.getDamager().getType() == EntityType.ARROW || e.getDamager().getType() == EntityType.SPECTRAL_ARROW || e.getDamager().getType() == EntityType.SPLASH_POTION) {
+            ECClan clan = ClansManager.getInstance().getClanByChunk(e.getEntity().getChunk());
+
+            if(clan == null) return;
+
+            if(e.getEntity().getType() == EntityType.PLAYER) {
+                if(!clan.isPVPAllowed())  {
+                    e.setCancelled(true);
+                }
+            } else {
+                if(!clan.isPVEAllowed())  {
+                    e.setCancelled(true);
                 }
             }
         }

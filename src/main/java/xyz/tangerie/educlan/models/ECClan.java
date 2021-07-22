@@ -1,9 +1,14 @@
 package xyz.tangerie.educlan.models;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.block.Beacon;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import xyz.tangerie.educlan.EduClan;
 
 import java.util.*;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class ECClan {
     private UUID uuid;
@@ -13,8 +18,11 @@ public class ECClan {
     private String name;
     private UUID owner;
     private Map<?, ?> settings;
+    private int chunkLimit;
+    private Location homeLocation;
+    private List<Long> beacons;
 
-    public ECClan(UUID uuid, List<UUID> players, List<UUID> invitees, List<Long> chunks, String name, UUID owner, Map<?, ?> settings) {
+    public ECClan(UUID uuid, List<UUID> players, List<UUID> invitees, List<Long> chunks, String name, UUID owner, Map<?, ?> settings, int chunkLimit, Location homeLocation, List<Long> beacons) {
         this.uuid = uuid;
         this.players = players;
         this.invitees = invitees;
@@ -22,6 +30,9 @@ public class ECClan {
         this.name = name;
         this.owner = owner;
         this.settings = settings;
+        this.chunkLimit = chunkLimit;
+        this.homeLocation = homeLocation;
+        this.beacons = beacons;
     }
 
     public ECClan(String name, Player p) {
@@ -33,6 +44,9 @@ public class ECClan {
         this.chunks = new LinkedList<>();
         this.settings = new HashMap<String, Object>();
         this.invitees = new LinkedList<>();
+        this.chunkLimit = EduClan.config.getInt("startingChunkMax");
+        this.homeLocation = null;
+        this.beacons = new LinkedList<>();
     }
 
     public UUID getUuid() {
@@ -117,9 +131,23 @@ public class ECClan {
         return (boolean)getSettingValue("pve", true);
     }
 
+    public int getClanColor() {
+        return (int)getSettingValue("color", 0xf54242);
+    }
+
+    public boolean messageOwnerOnEntry() {
+        return (boolean)getSettingValue("msg", false);
+    }
+
     private void messagePlayerIfOnline(UUID id, String msg) {
         if(Bukkit.getOfflinePlayer(id).isOnline()) {
             Bukkit.getPlayer(id).sendRawMessage(msg);
+        }
+    }
+
+    private void sendActionBarPlayerIfOnline(UUID id, String msg) {
+        if(Bukkit.getOfflinePlayer(id).isOnline()) {
+            Bukkit.getPlayer(id).sendActionBar(msg);
         }
     }
 
@@ -127,9 +155,45 @@ public class ECClan {
         messagePlayerIfOnline(getOwner(), msg);
     }
 
+    public void sendOwnerActionBar(String msg) {
+        sendActionBarPlayerIfOnline(getOwner(), msg);
+    }
+
     public void messageClan(String msg) {
         for(UUID u : getPlayers()) {
             messagePlayerIfOnline(u, msg);
         }
+    }
+
+    public int getChunkLimit() {
+        return chunkLimit + ((getPlayers().size() - 1) * 5);
+    }
+
+    public int getRawChunkLimit() {
+        return chunkLimit;
+    }
+
+    public void setChunkLimit(int chunkLimit) {
+        this.chunkLimit = chunkLimit;
+    }
+
+    public Location getHomeLocation() {
+        return homeLocation;
+    }
+
+    public void setHomeLocation(Location homeLocation) {
+        this.homeLocation = homeLocation;
+    }
+
+    public boolean isBeaconOwned(long key) {
+        return beacons.contains(key);
+    }
+
+    public boolean isBeaconOwned(Block b) {
+        return isBeaconOwned(b.getBlockKey());
+    }
+
+    public List<Long> getBeacons() {
+        return beacons;
     }
 }

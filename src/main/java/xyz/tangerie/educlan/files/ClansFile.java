@@ -1,6 +1,8 @@
 package xyz.tangerie.educlan.files;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import xyz.tangerie.educlan.models.ECClan;
@@ -38,15 +40,30 @@ public class ClansFile extends ConfigFile {
                     .collect(Collectors.toList());
             List<Long> chunks = getConfig().getLongList(path + ".chunks");
 
+            List<Long> beacons = getConfig().getLongList(path + ".beacons");
+
+            if(beacons == null) {
+                beacons = new LinkedList<>();
+            }
+
+            int chunkLimit = getConfig().getInt(path + ".chunkLimit");
+
+            Location homeLoc = null;
+
+            ConfigurationSection homeLocSec = getConfig().getConfigurationSection(path + ".homeLocation");
+
+            if(homeLocSec != null) {
+                homeLoc = new Location(Bukkit.getWorld("world"), homeLocSec.getDouble("x"), homeLocSec.getDouble("y"), homeLocSec.getDouble("z"));
+            }
+
             ConfigurationSection setConfig = getConfig().getConfigurationSection(path + ".settings");
 
             Map<?, ?> settings = new HashMap<String, Object>();
-
             if(setConfig != null) {
                 settings = setConfig.getValues(true);
             }
 
-            clans.add(new ECClan(clanUUID, players, invitees, chunks, name, owner, settings));
+            clans.add(new ECClan(clanUUID, players, invitees, chunks, name, owner, settings, chunkLimit, homeLoc, beacons));
         }
         return clans;
     }
@@ -66,6 +83,17 @@ public class ClansFile extends ConfigFile {
                 .collect(Collectors.toList()));
         getConfig().getConfigurationSection(path).set("chunks", clan.getChunks());
         getConfig().getConfigurationSection(path).set("settings", clan.getSettings());
+        getConfig().getConfigurationSection(path).set("chunkLimit", clan.getChunkLimit());
+
+        if(clan.getHomeLocation() != null) {
+            getConfig().getConfigurationSection(path).createSection("homeLocation");
+            ConfigurationSection homeLoc = getConfig().getConfigurationSection(path).getConfigurationSection("homeLocation");
+            homeLoc.set("x", clan.getHomeLocation().getX());
+            homeLoc.set("y", clan.getHomeLocation().getY());
+            homeLoc.set("z", clan.getHomeLocation().getZ());
+        }
+
+        getConfig().getConfigurationSection(path).set("beacons", clan.getBeacons());
 
         getConfig().save();
     }
@@ -132,6 +160,14 @@ public class ClansFile extends ConfigFile {
         }
     }
 
+    public static void setChunkLimit(ECClan clan, int limit) {
+        ConfigurationSection section = getConfig().getConfigurationSection("clans." + clan.getUuid().toString());
+        if(section != null) {
+            section.set("chunkLimit", limit);
+            getConfig().save();
+        }
+    }
+
     public static void removeClan(ECClan clan) {
         getConfig().set("clans." + clan.getUuid().toString(), null);
         getConfig().save();
@@ -152,6 +188,41 @@ public class ClansFile extends ConfigFile {
                 section.createSection("settings");
             }
             section.getConfigurationSection("settings").set(key, value);
+            getConfig().save();
+        }
+    }
+
+    public static void setClanHome(ECClan clan, Location loc) {
+        String path = "clans." + clan.getUuid().toString();
+
+        if(getConfig().getConfigurationSection(path).getConfigurationSection("homeLocation") == null) {
+            getConfig().getConfigurationSection(path).createSection("homeLocation");
+        }
+
+        ConfigurationSection homeLoc = getConfig().getConfigurationSection(path).getConfigurationSection("homeLocation");
+
+        homeLoc.set("x", loc.getX());
+        homeLoc.set("y", loc.getY());
+        homeLoc.set("z", loc.getZ());
+
+        getConfig().save();
+    }
+
+    public static void removeClanHome(ECClan clan) {
+        String path = "clans." + clan.getUuid().toString();
+
+        getConfig().getConfigurationSection(path).set("homeLocation", null);
+
+        getConfig().save();
+    }
+
+    public static void addBeaconToClan(ECClan clan, long key) {
+        String path = "clans." + clan.getUuid().toString();
+        if(getConfig().contains(path)) {
+            List<Long> beas = getConfig().getLongList(path + ".beacons");
+            beas.add(key);
+            getConfig().set(path + ".beacons", beas);
+
             getConfig().save();
         }
     }

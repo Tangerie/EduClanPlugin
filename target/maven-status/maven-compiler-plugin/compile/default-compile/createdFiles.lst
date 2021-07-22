@@ -1,0 +1,17 @@
+xyz\tangerie\educlan\commands\TestCommand.class
+xyz\tangerie\educlan\Util.class
+xyz\tangerie\educlan\listeners\PlayerSneakListener.class
+xyz\tangerie\educlan\managers\ClansManager.class
+xyz\tangerie\educlan\commands\ClanCommand$SetClanConfigCommand.class
+xyz\tangerie\educlan\listeners\BlockInteractListener.class
+xyz\tangerie\educlan\EduClan.class
+xyz\tangerie\educlan\files\ConfigFile.class
+xyz\tangerie\educlan\listeners\EntityDamageListener.class
+xyz\tangerie\educlan\listeners\BlockInteractListener$1.class
+xyz\tangerie\educlan\commands\ClanCommand$ClanBuyCommand.class
+xyz\tangerie\edulib\shop\InventoryHelper.class
+xyz\tangerie\educlan\files\ClansFile.class
+xyz\tangerie\educlan\listeners\ChunkMoveListener.class
+xyz\tangerie\educlan\commands\ClanCommand.class
+xyz\tangerie\educlan\EduClan$1.class
+xyz\tangerie\educlan\models\ECClan.class

@@ -1,5 +1,6 @@
 package xyz.tangerie.educlan.listeners;
 
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -23,7 +24,7 @@ public class ChunkMoveListener implements Listener {
 
         //Travelling to wilderness
         if(toClan == null) {
-            e.getPlayer().sendTitle(ChatColor.GREEN + "Wilderness", ChatColor.GREEN + "Entering No Man's Land", 5, 50, 5);
+            e.getPlayer().sendActionBar(ChatColor.DARK_GREEN + "Wilderness");
             return;
         }
 
@@ -31,7 +32,10 @@ public class ChunkMoveListener implements Listener {
 
         //Travelling from wilderness
         if(fromClan == null || !fromClan.getUuid().equals(toClan.getUuid())) {
-            e.getPlayer().sendTitle(ChatColor.YELLOW + toClan.getName(), "Owned By " + ChatColor.BLUE + owner.getName(), 5, 50, 5);
+            e.getPlayer().sendActionBar(ChatColor.GOLD + toClan.getName() + ChatColor.WHITE + ChatColor.BLUE + " [" + owner.getName() + "]");
+            if(!toClan.isPlayerInClan(e.getPlayer()) && toClan.messageOwnerOnEntry()) {
+                toClan.sendOwnerActionBar(ChatColor.DARK_RED + e.getPlayer().getName() + " Entered Your Land");
+            }
             return;
         }
     }
